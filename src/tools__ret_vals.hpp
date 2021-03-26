@@ -1,5 +1,6 @@
 //
 //  tools__ret_vals.hpp
+//  Copyright (c) 2020-2021 Wazniya
 //  Copyright (c) 2014-2019, MyMonero.com
 //
 //  All rights reserved.

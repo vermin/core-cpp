@@ -1,5 +1,6 @@
 //
 //  serial_bridge_utils.cpp
+//  Copyright (c) 2020-2021 Wazniya
 //  Copyright (c) 2014-2019, MyMonero.com
 //
 //  All rights reserved.
@@ -45,7 +46,7 @@ using namespace cryptonote;
 //
 using namespace serial_bridge_utils;
 //
-// TODO: factor these into a monero_bridge_utils and share with serial_bridge_utils (incl keys declarations there)
+// TODO: factor these into a wazn_bridge_utils and share with serial_bridge_utils (incl keys declarations there)
 network_type serial_bridge_utils::nettype_from_string(const string &nettype_string)
 { // TODO: possibly move this to network_type declaration
 	if (nettype_string == "MAINNET") {

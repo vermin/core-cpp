@@ -1,8 +1,9 @@
 //
-//  monero_fork_rules.hpp
-//  MyMonero
+//  wazn_fork_rules.hpp
+//  Wazniya
 //
 //  Created by Paul Shapiro on 1/9/18.
+//  Copyright (c) 2020-2021 Wazniya
 //  Copyright (c) 2014-2019, MyMonero.com
 //
 //  All rights reserved.
@@ -33,13 +34,13 @@
 //
 //
 
-#ifndef monero_fork_rules_hpp
-#define monero_fork_rules_hpp
+#ifndef wazn_fork_rules_hpp
+#define wazn_fork_rules_hpp
 
 #include <functional>
 #include <stdint.h>
 
-namespace monero_fork_rules
+namespace wazn_fork_rules
 {
 	typedef std::function<bool(uint8_t/*version*/, int64_t/*early_blocks*/)> use_fork_rules_fn_type;
 	//
@@ -63,4 +64,4 @@ namespace monero_fork_rules
 	uint64_t dust_threshold();
 }
 
-#endif /* monero_fork_rules */
+#endif /* wazn_fork_rules */

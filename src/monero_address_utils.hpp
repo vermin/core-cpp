@@ -1,5 +1,6 @@
 //
-//  monero_address_utils.hpp
+//  wazn_address_utils.hpp
+//  Copyright (c) 2020-2021 Wazniya
 //  Copyright (c) 2014-2019, MyMonero.com
 //
 //  All rights reserved.
@@ -37,14 +38,14 @@
 
 #include "tools__ret_vals.hpp"
 //
-namespace monero
+namespace wazn
 {
 	namespace address_utils
 	{
 		using namespace std;
 		using namespace boost;
 		using namespace cryptonote;
-		
+
 		struct DecodedAddress_RetVals: tools::RetVals_base
 		{
 			optional<string> pub_viewKey_string;

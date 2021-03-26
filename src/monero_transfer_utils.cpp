@@ -1,5 +1,6 @@
 //
-//  monero_transfer_utils.cpp
+//  wazn_transfer_utils.cpp
+//  Copyright (c) 2020-2021 Wazniya
 //  Copyright © 2018 MyMonero. All rights reserved.
 //
 //  All rights reserved.
@@ -31,11 +32,11 @@
 //
 //
 //
-#include "monero_transfer_utils.hpp"
+#include "wazn_transfer_utils.hpp"
 #include "wallet_errors.h"
 #include "string_tools.h"
-#include "monero_paymentID_utils.hpp"
-#include "monero_key_image_utils.hpp"
+#include "wazn_paymentID_utils.hpp"
+#include "wazn_key_image_utils.hpp"
 //
 using namespace std;
 using namespace crypto;
@@ -44,13 +45,13 @@ using namespace boost;
 using namespace epee;
 using namespace cryptonote;
 using namespace tools; // for error::
-using namespace monero_transfer_utils;
-using namespace monero_fork_rules;
-using namespace monero_fee_utils;
-using namespace monero_key_image_utils; // for API response parsing
+using namespace wazn_transfer_utils;
+using namespace wazn_fork_rules;
+using namespace wazn_fee_utils;
+using namespace wazn_key_image_utils; // for API response parsing
 //
 // Transfer parsing/derived properties
-bool monero_transfer_utils::is_transfer_unlocked(
+bool wazn_transfer_utils::is_transfer_unlocked(
 	uint64_t unlock_time,
 	uint64_t block_height,
 	uint64_t blockchain_size, /* extracting wallet2->m_blockchain.size() / m_local_bc_height */
@@ -64,7 +65,7 @@ bool monero_transfer_utils::is_transfer_unlocked(
 
 	return true;
 }
-bool monero_transfer_utils::is_tx_spendtime_unlocked(
+bool wazn_transfer_utils::is_tx_spendtime_unlocked(
 	uint64_t unlock_time,
 	uint64_t block_height,
 	uint64_t blockchain_size,
@@ -101,7 +102,7 @@ CreateTransactionErrorCode _add_pid_to_tx_extra(
 	bool r = false;
 	if (payment_id_string != none && payment_id_string->size() > 0) {
 		crypto::hash payment_id;
-		r = monero_paymentID_utils::parse_long_payment_id(*payment_id_string, payment_id);
+		r = wazn_paymentID_utils::parse_long_payment_id(*payment_id_string, payment_id);
 		if (r) {
 			std::string extra_nonce;
 			cryptonote::set_payment_id_to_tx_extra_nonce(extra_nonce, payment_id);
@@ -111,7 +112,7 @@ CreateTransactionErrorCode _add_pid_to_tx_extra(
 			}
 		} else {
 			crypto::hash8 payment_id8;
-			r = monero_paymentID_utils::parse_short_payment_id(*payment_id_string, payment_id8);
+			r = wazn_paymentID_utils::parse_short_payment_id(*payment_id_string, payment_id8);
 			if (!r) { // a PID has been specified by the user but the last resort in validating it fails; error
 				return invalidPID;
 			}
@@ -184,7 +185,7 @@ bool _rct_hex_to_decrypted_mask(
 	sc_sub(decrypted_mask.bytes,
 		encrypted_mask.bytes,
 		rct::hash_to_scalar(make_key_derivation()).bytes);
-	
+
 	return true;
 }
 bool _verify_sec_key(const crypto::secret_key &secret_key, const crypto::public_key &public_key)
@@ -208,7 +209,7 @@ namespace
 			vec[idx] = std::move(vec.back());
 		}
 		vec.resize(vec.size() - 1);
-		
+
 		return res;
 	}
 	//
@@ -216,7 +217,7 @@ namespace
 	T pop_random_value(std::vector<T>& vec)
 	{
 		CHECK_AND_ASSERT_MES(!vec.empty(), T(), "Vector must be non-empty");
-		
+
 		size_t idx = crypto::rand<size_t>() % vec.size();
 		return pop_index (vec, idx);
 	}
@@ -225,7 +226,7 @@ namespace
 //
 //
 // Decomposed Send procedure
-void monero_transfer_utils::send_step1__prepare_params_for_get_decoys(
+void wazn_transfer_utils::send_step1__prepare_params_for_get_decoys(
 	Send_Step1_RetVals &retVals,
 	//
 	const optional<string>& payment_id_string,
@@ -257,7 +258,7 @@ void monero_transfer_utils::send_step1__prepare_params_for_get_decoys(
 		}
 	}
 	//
-	uint32_t fake_outs_count = monero_fork_rules::fixed_mixinsize();
+	uint32_t fake_outs_count = wazn_fork_rules::fixed_mixinsize();
 	retVals.mixin = fake_outs_count;
 	//
 	bool use_rct = true;
@@ -305,7 +306,7 @@ void monero_transfer_utils::send_step1__prepare_params_for_get_decoys(
 			// out.rct is set by the server
 			continue; // skip rct outputs if not creating rct tx
 		}
-		if (out.amount < monero_fork_rules::dust_threshold()) { // amount is dusty..
+		if (out.amount < wazn_fork_rules::dust_threshold()) { // amount is dusty..
 			if (out.rct == none || (*out.rct).empty()) {
 //				cout << "Found a dusty but unmixable (non-rct) output... skipping it!" << endl;
 				continue;
@@ -391,7 +392,7 @@ void monero_transfer_utils::send_step1__prepare_params_for_get_decoys(
 //		// TODO?
 //	}
 }
-void monero_transfer_utils::send_step2__try_create_transaction(
+void wazn_transfer_utils::send_step2__try_create_transaction(
 	Send_Step2_RetVals &retVals,
 	//
 	const string &from_address_string,
@@ -414,7 +415,7 @@ void monero_transfer_utils::send_step2__try_create_transaction(
 	retVals = {};
 	//
 	Convenience_TransactionConstruction_RetVals create_tx__retVals;
-	monero_transfer_utils::convenience__create_transaction(
+	wazn_transfer_utils::convenience__create_transaction(
 		create_tx__retVals,
 		from_address_string,
 		sec_viewKey_string, sec_spendKey_string,
@@ -454,17 +455,17 @@ void monero_transfer_utils::send_step2__try_create_transaction(
 //
 // Underlying implementations to mimic historical JS-land create_transaction / construct_tx impls
 //
-void monero_transfer_utils::create_transaction(
+void wazn_transfer_utils::create_transaction(
 	TransactionConstruction_RetVals &retVals,
 	const account_keys& sender_account_keys, // this will reference a particular hw::device
 	const uint32_t subaddr_account_idx,
 	const std::unordered_map<crypto::public_key, cryptonote::subaddress_index> &subaddresses,
-	const address_parse_info &to_addr, 
+	const address_parse_info &to_addr,
 	uint64_t sending_amount,
 	uint64_t change_amount,
 	uint64_t fee_amount,
 	const vector<SpendableOutput> &outputs,
-	vector<RandomAmountOutputs> &mix_outs, 
+	vector<RandomAmountOutputs> &mix_outs,
 	const std::vector<uint8_t> &extra,
 	use_fork_rules_fn_type use_fork_rules_fn,
 	uint64_t unlock_time, // or 0
@@ -713,7 +714,7 @@ void monero_transfer_utils::create_transaction(
 	retVals.additional_tx_keys = additional_tx_keys;
 }
 //
-void monero_transfer_utils::convenience__create_transaction(
+void wazn_transfer_utils::convenience__create_transaction(
 	Convenience_TransactionConstruction_RetVals &retVals,
 	const string &from_address_string,
 	const string &sec_viewKey_string,
@@ -746,7 +747,7 @@ void monero_transfer_utils::convenience__create_transaction(
 		account_keys.m_spend_secret_key = sec_spendKey;
 	}
 	THROW_WALLET_EXCEPTION_IF(
-		to_address_string.find(".") != std::string::npos, // assumed to be an OA address asXMR addresses do not have periods and OA addrs must
+		to_address_string.find(".") != std::string::npos, // Assumed to be an OA address as Wazn addresses do not have periods but OA has to.
 		error::wallet_internal_error,
 		"Integrators must resolve OA addresses before calling Send"
 	); // This would be an app code fault
@@ -833,6 +834,6 @@ void monero_transfer_utils::convenience__create_transaction(
 	//
 //	cout << "out 0: " << string_tools::pod_to_hex(boost::get<txout_to_key>((*(actualCall_retVals.tx)).vout[0].target).key) << endl;
 //	cout << "out 1: " << string_tools::pod_to_hex(boost::get<txout_to_key>((*(actualCall_retVals.tx)).vout[1].target).key) << endl;
-	//	
+	//
 	retVals.txBlob_byteLength = txBlob_byteLength;
 }

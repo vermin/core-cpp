@@ -1,8 +1,9 @@
 //
-//  monero_key_image_utils.hpp
-//  MyMonero
+//  wazn_key_image_utils.hpp
+//  Wazniya
 //
 //  Created by Paul Shapiro on 1/2/18.
+//  Copyright (c) 2020-2021 Wazniya
 //  Copyright (c) 2014-2019, MyMonero.com
 //
 //  All rights reserved.
@@ -32,8 +33,8 @@
 //  THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //
-#ifndef monero_key_image_utils_hpp
-#define monero_key_image_utils_hpp
+#ifndef wazn_key_image_utils_hpp
+#define wazn_key_image_utils_hpp
 //
 #include "crypto.h"
 #include "cryptonote_basic.h"
@@ -41,7 +42,7 @@
 using namespace tools;
 #include "tools__ret_vals.hpp"
 //
-namespace monero_key_image_utils
+namespace wazn_key_image_utils
 {
 	struct KeyImageRetVals: RetVals_base
 	{
@@ -57,4 +58,4 @@ namespace monero_key_image_utils
 	);
 }
 //
-#endif /* monero_key_image_utils_hpp */
+#endif /* wazn_key_image_utils_hpp */

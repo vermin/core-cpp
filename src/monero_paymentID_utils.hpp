@@ -1,5 +1,6 @@
 //
-//  monero_paymentID_utils.hpp
+//  wazn_paymentID_utils.hpp
+//  Copyright (c) 2020-2021 Wazniya
 //  Copyright (c) 2014-2019, MyMonero.com
 //
 //  All rights reserved.
@@ -30,14 +31,14 @@
 //
 //
 
-#ifndef monero_paymentID_utils_hpp
-#define monero_paymentID_utils_hpp
+#ifndef wazn_paymentID_utils_hpp
+#define wazn_paymentID_utils_hpp
 
 #include <stdio.h>
 #include <boost/optional.hpp>
 #include "crypto.h"
 
-namespace monero_paymentID_utils
+namespace wazn_paymentID_utils
 {
 	using namespace std;
 	using namespace boost;
@@ -60,4 +61,4 @@ namespace monero_paymentID_utils
 	bool is_a_valid_or_not_a_payment_id(optional<string> str); // this checks 16 and then 64 len strs
 }
 
-#endif /* monero_paymentID_utils_hpp */
+#endif /* wazn_paymentID_utils_hpp */

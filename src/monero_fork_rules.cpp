@@ -1,8 +1,9 @@
 //
-//  monero_fork_rules.cpp
-//  MyMonero
+//  wazn_fork_rules.cpp
+//  Wazniya
 //
 //  Created by Paul Shapiro on 1/9/18.
+//  Copyright (c) 2020-2021 Wazniya
 //  Copyright (c) 2014-2019, MyMonero.com
 //
 //  All rights reserved.
@@ -33,11 +34,11 @@
 //
 //
 //
-#include "monero_fork_rules.hpp"
+#include "wazn_fork_rules.hpp"
 //
-using namespace monero_fork_rules;
+using namespace wazn_fork_rules;
 //
-bool monero_fork_rules::lightwallet_hardcoded__use_fork_rules(uint8_t version, int64_t early_blocks)
+bool wazn_fork_rules::lightwallet_hardcoded__use_fork_rules(uint8_t version, int64_t early_blocks)
 {
 	return true; // TODO - we don't have the actual fork rules from thje lightwallet server yet
 	//
@@ -53,19 +54,19 @@ bool monero_fork_rules::lightwallet_hardcoded__use_fork_rules(uint8_t version, i
 //		LOG_PRINT_L2("Using v" << (unsigned)version << " rules");
 //	else
 //		LOG_PRINT_L2("Not using v" << (unsigned)version << " rules");
-//	return close_enough;	
+//	return close_enough;
 }
 //
 // Protocol / Defaults
-uint32_t monero_fork_rules::fixed_ringsize()
+uint32_t wazn_fork_rules::fixed_ringsize()
 {
 	return 11; // v8
 }
-uint32_t monero_fork_rules::fixed_mixinsize()
+uint32_t wazn_fork_rules::fixed_mixinsize()
 {
 	return fixed_ringsize() - 1;
 }
-uint64_t monero_fork_rules::dust_threshold()
+uint64_t wazn_fork_rules::dust_threshold()
 {
 	return 2000000000;
 }

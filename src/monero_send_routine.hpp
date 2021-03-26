@@ -1,5 +1,6 @@
 //
-//  monero_send_routine.hpp
+//  wazn_send_routine.hpp
+//  Copyright (c) 2020-2021 Wazniya
 //  Copyright (c) 2014-2019, MyMonero.com
 //
 //  All rights reserved.
@@ -29,8 +30,8 @@
 //  THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //
-#ifndef monero_send_routine_hpp
-#define monero_send_routine_hpp
+#ifndef wazn_send_routine_hpp
+#define wazn_send_routine_hpp
 //
 #include <boost/optional.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -44,14 +45,14 @@
 using namespace tools;
 #include "tools__ret_vals.hpp"
 //
-#include "monero_transfer_utils.hpp"
+#include "wazn_transfer_utils.hpp"
 //
-namespace monero_send_routine
+namespace wazn_send_routine
 {
 	using namespace std;
 	using namespace boost;
 	using namespace cryptonote;
-	using namespace monero_transfer_utils;
+	using namespace wazn_transfer_utils;
 	using namespace crypto;
 	//
 	// Abstracted Send routine
@@ -67,7 +68,7 @@ namespace monero_send_routine
 		const string amount; // "0" uint64_string
 		size_t mixin;
 		bool use_dust; // true; send-funds is now coded to filter unmixable and below threshold dust properly when sweeping and not sweeping
-		const string dust_threshold; // uint64_string; String(MoneroConstants.dustThreshold, radix: 10)
+		const string dust_threshold; // uint64_string; String(WaznConstants.dustThreshold, radix: 10)
 	};
 	static inline string json_string_from_req_GetUnspentOuts(const LightwalletAPI_Req_GetUnspentOuts &req_params)
 	{
@@ -245,4 +246,4 @@ namespace monero_send_routine
 	void async__send_funds(Async_SendFunds_Args args);
 }
 
-#endif /* monero_send_routine_hpp */
+#endif /* wazn_send_routine_hpp */

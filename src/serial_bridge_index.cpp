@@ -1,5 +1,6 @@
 //
 //  serial_bridge_index.cpp
+//  Copyright (c) 2020-2021 Wazniya
 //  Copyright (c) 2014-2019, MyMonero.com
 //
 //  All rights reserved.
@@ -36,12 +37,12 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
 //
-#include "monero_fork_rules.hpp"
-#include "monero_transfer_utils.hpp"
-#include "monero_address_utils.hpp" // TODO: split this/these out into a different namespaces or file so this file can scale (leave file for shared utils)
-#include "monero_paymentID_utils.hpp"
-#include "monero_wallet_utils.hpp"
-#include "monero_key_image_utils.hpp"
+#include "wazn_fork_rules.hpp"
+#include "wazn_transfer_utils.hpp"
+#include "wazn_address_utils.hpp" // TODO: split this/these out into a different namespaces or file so this file can scale (leave file for shared utils)
+#include "wazn_paymentID_utils.hpp"
+#include "wazn_wallet_utils.hpp"
+#include "wazn_key_image_utils.hpp"
 #include "wallet_errors.h"
 #include "string_tools.h"
 #include "ringct/rctSigs.h"
@@ -51,8 +52,8 @@
 using namespace std;
 using namespace boost;
 using namespace cryptonote;
-using namespace monero_transfer_utils;
-using namespace monero_fork_rules;
+using namespace wazn_transfer_utils;
+using namespace wazn_fork_rules;
 //
 using namespace serial_bridge;
 using namespace serial_bridge_utils;
@@ -67,7 +68,7 @@ string serial_bridge::decode_address(const string &args_string)
 		// it will already have thrown an exception
 		return error_ret_json_from_message("Invalid JSON");
 	}
-	auto retVals = monero::address_utils::decodedAddress(json_root.get<string>("address"), nettype_from_string(json_root.get<string>("nettype_string")));
+	auto retVals = wazn::address_utils::decodedAddress(json_root.get<string>("address"), nettype_from_string(json_root.get<string>("nettype_string")));
 	if (retVals.did_error) {
 		return error_ret_json_from_message(*(retVals.err_string));
 	}
@@ -88,7 +89,7 @@ string serial_bridge::is_subaddress(const string &args_string)
 		// it will already have thrown an exception
 		return error_ret_json_from_message("Invalid JSON");
 	}
-	bool retVal = monero::address_utils::isSubAddress(json_root.get<string>("address"), nettype_from_string(json_root.get<string>("nettype_string")));
+	bool retVal = wazn::address_utils::isSubAddress(json_root.get<string>("address"), nettype_from_string(json_root.get<string>("nettype_string")));
 	boost::property_tree::ptree root;
 	root.put(ret_json_key__generic_retVal(), retVal);
 	//
@@ -101,7 +102,7 @@ string serial_bridge::is_integrated_address(const string &args_string)
 		// it will already have thrown an exception
 		return error_ret_json_from_message("Invalid JSON");
 	}
-	bool retVal = monero::address_utils::isIntegratedAddress(json_root.get<string>("address"), nettype_from_string(json_root.get<string>("nettype_string")));
+	bool retVal = wazn::address_utils::isIntegratedAddress(json_root.get<string>("address"), nettype_from_string(json_root.get<string>("nettype_string")));
 	boost::property_tree::ptree root;
 	root.put(ret_json_key__generic_retVal(), retVal);
 	//
@@ -114,7 +115,7 @@ string serial_bridge::new_integrated_address(const string &args_string)
 		// it will already have thrown an exception
 		return error_ret_json_from_message("Invalid JSON");
 	}
-	optional<string> retVal = monero::address_utils::new_integratedAddrFromStdAddr(json_root.get<string>("address"), json_root.get<string>("short_pid"), nettype_from_string(json_root.get<string>("nettype_string")));
+	optional<string> retVal = wazn::address_utils::new_integratedAddrFromStdAddr(json_root.get<string>("address"), json_root.get<string>("short_pid"), nettype_from_string(json_root.get<string>("nettype_string")));
 	boost::property_tree::ptree root;
 	if (retVal != none) {
 		root.put(ret_json_key__generic_retVal(), *retVal);
@@ -129,7 +130,7 @@ string serial_bridge::new_payment_id(const string &args_string)
 		// it will already have thrown an exception
 		return error_ret_json_from_message("Invalid JSON");
 	}
-	optional<string> retVal = monero_paymentID_utils::new_short_plain_paymentID_string();
+	optional<string> retVal = wazn_paymentID_utils::new_short_plain_paymentID_string();
 	boost::property_tree::ptree root;
 	if (retVal != none) {
 		root.put(ret_json_key__generic_retVal(), *retVal);
@@ -145,8 +146,8 @@ string serial_bridge::newly_created_wallet(const string &args_string)
 		// it will already have thrown an exception
 		return error_ret_json_from_message("Invalid JSON");
 	}
-	monero_wallet_utils::WalletDescriptionRetVals retVals;
-	bool r = monero_wallet_utils::convenience__new_wallet_with_language_code(
+	wazn_wallet_utils::WalletDescriptionRetVals retVals;
+	bool r = wazn_wallet_utils::convenience__new_wallet_with_language_code(
 		json_root.get<string>("locale_language_code"),
 		retVals,
 		nettype_from_string(json_root.get<string>("nettype_string"))
@@ -181,7 +182,7 @@ string serial_bridge::are_equal_mnemonics(const string &args_string)
 	}
 	bool equal;
 	try {
-		equal = monero_wallet_utils::are_equal_mnemonics(
+		equal = wazn_wallet_utils::are_equal_mnemonics(
 			json_root.get<string>("a"),
 			json_root.get<string>("b")
 		);
@@ -200,8 +201,8 @@ string serial_bridge::address_and_keys_from_seed(const string &args_string)
 		// it will already have thrown an exception
 		return error_ret_json_from_message("Invalid JSON");
 	}
-	monero_wallet_utils::ComponentsFromSeed_RetVals retVals;
-	bool r = monero_wallet_utils::address_and_keys_from_seed(
+	wazn_wallet_utils::ComponentsFromSeed_RetVals retVals;
+	bool r = wazn_wallet_utils::address_and_keys_from_seed(
 		json_root.get<string>("seed_string"),
 		nettype_from_string(json_root.get<string>("nettype_string")),
 		retVals
@@ -228,7 +229,7 @@ string serial_bridge::mnemonic_from_seed(const string &args_string)
 		// it will already have thrown an exception
 		return error_ret_json_from_message("Invalid JSON");
 	}
-	monero_wallet_utils::SeedDecodedMnemonic_RetVals retVals = monero_wallet_utils::mnemonic_string_from_seed_hex_string(
+	wazn_wallet_utils::SeedDecodedMnemonic_RetVals retVals = wazn_wallet_utils::mnemonic_string_from_seed_hex_string(
 		json_root.get<string>("seed_string"),
 		json_root.get<string>("wordset_name")
 	);
@@ -250,8 +251,8 @@ string serial_bridge::seed_and_keys_from_mnemonic(const string &args_string)
 		// it will already have thrown an exception
 		return error_ret_json_from_message("Invalid JSON");
 	}
-	monero_wallet_utils::WalletDescriptionRetVals retVals;
-	bool r = monero_wallet_utils::wallet_with(
+	wazn_wallet_utils::WalletDescriptionRetVals retVals;
+	bool r = wazn_wallet_utils::wallet_with(
 		json_root.get<string>("mnemonic_string"),
 		retVals,
 		nettype_from_string(json_root.get<string>("nettype_string"))
@@ -260,7 +261,7 @@ string serial_bridge::seed_and_keys_from_mnemonic(const string &args_string)
 	if (!r) {
 		return error_ret_json_from_message(*retVals.err_string);
 	}
-	monero_wallet_utils::WalletDescription walletDescription = *(retVals.optl__desc);
+	wazn_wallet_utils::WalletDescription walletDescription = *(retVals.optl__desc);
 	THROW_WALLET_EXCEPTION_IF(did_error, error::wallet_internal_error, "Illegal success flag but did_error");
 	//
 	boost::property_tree::ptree root;
@@ -281,8 +282,8 @@ string serial_bridge::validate_components_for_login(const string &args_string)
 		// it will already have thrown an exception
 		return error_ret_json_from_message("Invalid JSON");
 	}
-	monero_wallet_utils::WalletComponentsValidationResults retVals;
-	bool r = monero_wallet_utils::validate_wallet_components_with( // returns !did_error
+	wazn_wallet_utils::WalletComponentsValidationResults retVals;
+	bool r = wazn_wallet_utils::validate_wallet_components_with( // returns !did_error
 		json_root.get<string>("address_string"),
 		json_root.get<string>("sec_viewKey_string"),
 		json_root.get_optional<string>("sec_spendKey_string"),
@@ -316,10 +317,10 @@ string serial_bridge::estimated_tx_network_fee(const string &args_string)
 	if (optl__fork_version_string != none) {
 		fork_version = stoul(*optl__fork_version_string);
 	}
-	uint64_t fee = monero_fee_utils::estimated_tx_network_fee(
+	uint64_t fee = wazn_fee_utils::estimated_tx_network_fee(
 		stoull(json_root.get<string>("fee_per_b")),
 		stoul(json_root.get<string>("priority")),
-		monero_fork_rules::make_use_fork_rules_fn(fork_version)
+		wazn_fork_rules::make_use_fork_rules_fn(fork_version)
 	);
 	std::ostringstream o;
 	o << fee;
@@ -347,10 +348,10 @@ string serial_bridge::estimate_fee(const string &args_string)
 	uint64_t fee_quantization_mask = stoull(json_root.get<string>("fee_quantization_mask"));
 	uint32_t priority = stoul(json_root.get<string>("priority"));
 	uint8_t fork_version = stoul(json_root.get<string>("fork_version"));
-	use_fork_rules_fn_type use_fork_rules_fn = monero_fork_rules::make_use_fork_rules_fn(fork_version);
-	uint64_t fee_multiplier = monero_fee_utils::get_fee_multiplier(priority, monero_fee_utils::default_priority(), monero_fee_utils::get_fee_algorithm(use_fork_rules_fn), use_fork_rules_fn);
+	use_fork_rules_fn_type use_fork_rules_fn = wazn_fork_rules::make_use_fork_rules_fn(fork_version);
+	uint64_t fee_multiplier = wazn_fee_utils::get_fee_multiplier(priority, wazn_fee_utils::default_priority(), wazn_fee_utils::get_fee_algorithm(use_fork_rules_fn), use_fork_rules_fn);
 	//
-	uint64_t fee = monero_fee_utils::estimate_fee(use_per_byte_fee, use_rct, n_inputs, mixin, n_outputs, extra_size, bulletproof, base_fee, fee_multiplier, fee_quantization_mask);
+	uint64_t fee = wazn_fee_utils::estimate_fee(use_per_byte_fee, use_rct, n_inputs, mixin, n_outputs, extra_size, bulletproof, base_fee, fee_multiplier, fee_quantization_mask);
 	//
 	std::ostringstream o;
 	o << fee;
@@ -373,7 +374,7 @@ string serial_bridge::estimate_tx_weight(const string &args_string)
 	size_t extra_size = stoul(json_root.get<string>("extra_size"));
 	bool bulletproof = json_root.get<bool>("bulletproof");
 	//
-	uint64_t weight = monero_fee_utils::estimate_tx_weight(use_rct, n_inputs, mixin, n_outputs, extra_size, bulletproof);
+	uint64_t weight = wazn_fee_utils::estimate_tx_weight(use_rct, n_inputs, mixin, n_outputs, extra_size, bulletproof);
 	//
 	std::ostringstream o;
 	o << weight;
@@ -389,7 +390,7 @@ string serial_bridge::estimate_rct_tx_size(const string &args_string)
 		// it will already have thrown an exception
 		return error_ret_json_from_message("Invalid JSON");
 	}
-	std::size_t size = monero_fee_utils::estimate_rct_tx_size(
+	std::size_t size = wazn_fee_utils::estimate_rct_tx_size(
 		stoul(json_root.get<string>("n_inputs")),
 		stoul(json_root.get<string>("mixin")),
 		stoul(json_root.get<string>("n_outputs")),
@@ -427,8 +428,8 @@ string serial_bridge::generate_key_image(const string &args_string)
 		r = epee::string_tools::hex_to_pod(std::string(json_root.get<string>("tx_pub_key")), tx_pub_key);
 		THROW_WALLET_EXCEPTION_IF(!r, error::wallet_internal_error, "Invalid tx pub key");
 	}
-	monero_key_image_utils::KeyImageRetVals retVals;
-	bool r = monero_key_image_utils::new__key_image(
+	wazn_key_image_utils::KeyImageRetVals retVals;
+	bool r = wazn_key_image_utils::new__key_image(
 		pub_spendKey, sec_spendKey, sec_viewKey, tx_pub_key,
 		stoull(json_root.get<string>("out_index")),
 		retVals
@@ -478,14 +479,14 @@ string serial_bridge::send_step1__prepare_params_for_get_decoys(const string &ar
 		fork_version = stoul(*optl__fork_version_string);
 	}
 	Send_Step1_RetVals retVals;
-	monero_transfer_utils::send_step1__prepare_params_for_get_decoys(
+	wazn_transfer_utils::send_step1__prepare_params_for_get_decoys(
 		retVals,
 		//
 		json_root.get_optional<string>("payment_id_string"),
 		stoull(json_root.get<string>("sending_amount")),
 		json_root.get<bool>("is_sweeping"),
 		stoul(json_root.get<string>("priority")),
-		monero_fork_rules::make_use_fork_rules_fn(fork_version),
+		wazn_fork_rules::make_use_fork_rules_fn(fork_version),
 		unspent_outs,
 		stoull(json_root.get<string>("fee_per_b")), // per v8
 		stoull(json_root.get<string>("fee_mask")),
@@ -514,7 +515,7 @@ string serial_bridge::send_step1__prepare_params_for_get_decoys(const string &ar
 				out_ptree.put("amount", RetVals_Transforms::str_from(out.amount));
 				out_ptree.put("public_key", out.public_key);
 				if (out.rct != none && (*out.rct).empty() == false) {
-					out_ptree.put("rct", *out.rct); 
+					out_ptree.put("rct", *out.rct);
 				}
 				out_ptree.put("global_index", RetVals_Transforms::str_from(out.global_index));
 				out_ptree.put("index", RetVals_Transforms::str_from(out.index));
@@ -574,7 +575,7 @@ string serial_bridge::send_step2__try_create_transaction(const string &args_stri
 		fork_version = stoul(*optl__fork_version_string);
 	}
 	Send_Step2_RetVals retVals;
-	monero_transfer_utils::send_step2__try_create_transaction(
+	wazn_transfer_utils::send_step2__try_create_transaction(
 		retVals,
 		//
 		json_root.get<string>("from_address_string"),
@@ -590,7 +591,7 @@ string serial_bridge::send_step2__try_create_transaction(const string &args_stri
 		stoull(json_root.get<string>("fee_per_b")),
 		stoull(json_root.get<string>("fee_mask")),
 		mix_outs,
-		monero_fork_rules::make_use_fork_rules_fn(fork_version),
+		wazn_fork_rules::make_use_fork_rules_fn(fork_version),
 		stoull(json_root.get<string>("unlock_time")),
 		nettype_from_string(json_root.get<string>("nettype_string"))
 	);
@@ -669,7 +670,7 @@ string serial_bridge::decodeRct(const string &args_string)
 	}
 	//
 	rct::key mask;
-	rct::xmr_amount/*uint64_t*/ decoded_amount;
+	rct::wazn_amount/*uint64_t*/ decoded_amount;
 	try {
 		decoded_amount = rct::decodeRct(
 			rv, sk, i, mask,
@@ -685,7 +686,7 @@ string serial_bridge::decodeRct(const string &args_string)
 	root.put(ret_json_key__decodeRct_mask(), epee::string_tools::pod_to_hex(mask));
 	root.put(ret_json_key__decodeRct_amount(), decoded_amount_ss.str());
 	//
-	return ret_json_from_root(root);	
+	return ret_json_from_root(root);
 }
 //
 string serial_bridge::decodeRctSimple(const string &args_string)
@@ -750,7 +751,7 @@ string serial_bridge::decodeRctSimple(const string &args_string)
 	}
 	//
 	rct::key mask;
-	rct::xmr_amount/*uint64_t*/ decoded_amount;
+	rct::wazn_amount/*uint64_t*/ decoded_amount;
 	try {
 		decoded_amount = rct::decodeRctSimple(
 			rv, sk, i, mask,
@@ -766,7 +767,7 @@ string serial_bridge::decodeRctSimple(const string &args_string)
 	root.put(ret_json_key__decodeRct_mask(), epee::string_tools::pod_to_hex(mask));
 	root.put(ret_json_key__decodeRct_amount(), decoded_amount_ss.str());
 	//
-	return ret_json_from_root(root);	
+	return ret_json_from_root(root);
 }
 string serial_bridge::generate_key_derivation(const string &args_string)
 {
@@ -861,7 +862,7 @@ string serial_bridge::derivation_to_scalar(const string &args_string)
 	//
 	return ret_json_from_root(root);
 }
-string serial_bridge::encrypt_payment_id(const string &args_string) 
+string serial_bridge::encrypt_payment_id(const string &args_string)
 {
 	boost::property_tree::ptree json_root;
 	if (!parsed_json_root(args_string, json_root)) {

@@ -1,5 +1,6 @@
 //
-//  monero_send_routine.cpp
+//  wazn_send_routine.cpp
+//  Copyright (c) 2020-2021 Wazniya
 //  Copyright © 2018 MyMonero. All rights reserved.
 //
 //  All rights reserved.
@@ -35,12 +36,12 @@
 #include "wallet_errors.h"
 #include "string_tools.h"
 //
-#include "monero_send_routine.hpp"
+#include "wazn_send_routine.hpp"
 //
-#include "monero_transfer_utils.hpp"
-#include "monero_fork_rules.hpp"
-#include "monero_key_image_utils.hpp"
-#include "monero_address_utils.hpp"
+#include "wazn_transfer_utils.hpp"
+#include "wazn_fork_rules.hpp"
+#include "wazn_key_image_utils.hpp"
+#include "wazn_address_utils.hpp"
 //
 using namespace crypto;
 using namespace std;
@@ -48,10 +49,10 @@ using namespace boost;
 using namespace epee;
 using namespace cryptonote;
 using namespace tools; // for error::
-using namespace monero_transfer_utils;
-using namespace monero_fork_rules;
-using namespace monero_key_image_utils; // for API response parsing
-using namespace monero_send_routine;
+using namespace wazn_transfer_utils;
+using namespace wazn_fork_rules;
+using namespace wazn_key_image_utils; // for API response parsing
+using namespace wazn_send_routine;
 //
 //
 optional<uint64_t> _possible_uint64_from_json(
@@ -70,7 +71,7 @@ optional<uint64_t> _possible_uint64_from_json(
 	return none;
 }
 //
-LightwalletAPI_Req_GetUnspentOuts monero_send_routine::new__req_params__get_unspent_outs(
+LightwalletAPI_Req_GetUnspentOuts wazn_send_routine::new__req_params__get_unspent_outs(
 	string from_address_string,
 	string sec_viewKey_string
 ) {
@@ -85,7 +86,7 @@ LightwalletAPI_Req_GetUnspentOuts monero_send_routine::new__req_params__get_unsp
 		dustT_ss.str()
 	};
 }
-LightwalletAPI_Req_GetRandomOuts monero_send_routine::new__req_params__get_random_outs(
+LightwalletAPI_Req_GetRandomOuts wazn_send_routine::new__req_params__get_random_outs(
 	vector<SpendableOutput> &step1__using_outs
 ) {
 	vector<string> decoy_req__amounts;
@@ -105,7 +106,7 @@ LightwalletAPI_Req_GetRandomOuts monero_send_routine::new__req_params__get_rando
 	};
 }
 //
-LightwalletAPI_Res_GetUnspentOuts monero_send_routine::new__parsed_res__get_unspent_outs(
+LightwalletAPI_Res_GetUnspentOuts wazn_send_routine::new__parsed_res__get_unspent_outs(
 	const property_tree::ptree &res,
 	const secret_key &sec_viewKey,
 	const secret_key &sec_spendKey,
@@ -249,7 +250,7 @@ LightwalletAPI_Res_GetUnspentOuts monero_send_routine::new__parsed_res__get_unsp
 		fork_version ? *fork_version : static_cast<uint8_t>(0)
 	};
 }
-LightwalletAPI_Res_GetRandomOuts monero_send_routine::new__parsed_res__get_random_outs(
+LightwalletAPI_Res_GetRandomOuts wazn_send_routine::new__parsed_res__get_random_outs(
 	const property_tree::ptree &res
 ) {
 	vector<RandomAmountOutputs> mix_outs;
@@ -332,10 +333,10 @@ void _reenterable_construct_and_send_tx(
 ) {
 	args.status_update_fn(calculatingFee);
 	//
-	auto use_fork_rules = monero_fork_rules::make_use_fork_rules_fn(args.fork_version);
+	auto use_fork_rules = wazn_fork_rules::make_use_fork_rules_fn(args.fork_version);
 	//
 	Send_Step1_RetVals step1_retVals;
-	monero_transfer_utils::send_step1__prepare_params_for_get_decoys(
+	wazn_transfer_utils::send_step1__prepare_params_for_get_decoys(
 		step1_retVals,
 		//
 		args.payment_id_string,
@@ -373,7 +374,7 @@ void _reenterable_construct_and_send_tx(
 			return;
 		}
 		Send_Step2_RetVals step2_retVals;
-		monero_transfer_utils::send_step2__try_create_transaction(
+		wazn_transfer_utils::send_step2__try_create_transaction(
 			step2_retVals,
 			//
 			args.from_address_string,
@@ -433,7 +434,7 @@ void _reenterable_construct_and_send_tx(
 			{
 				optional<string> returning__payment_id = args.payment_id_string; // separated from submit_raw_tx_fn so that it can be captured w/o capturing all of args (FIXME: does this matter?)
 				if (returning__payment_id == none) {
-					auto decoded = monero::address_utils::decodedAddress(args.to_address_string, args.nettype);
+					auto decoded = wazn::address_utils::decodedAddress(args.to_address_string, args.nettype);
 					if (decoded.did_error) { // would be very strange...
 						SendFunds_Error_RetVals error_retVals;
 						error_retVals.explicit_errMsg = *(decoded.err_string);
@@ -470,7 +471,7 @@ void _reenterable_construct_and_send_tx(
 //
 //
 // Entrypoint
-void monero_send_routine::async__send_funds(Async_SendFunds_Args args)
+void wazn_send_routine::async__send_funds(Async_SendFunds_Args args)
 {
 	uint64_t usable__sending_amount = args.is_sweeping ? 0 : args.sending_amount;
 	crypto::secret_key sec_viewKey{};
